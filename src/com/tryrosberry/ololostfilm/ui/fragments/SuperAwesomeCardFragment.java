@@ -17,7 +17,6 @@
 package com.tryrosberry.ololostfilm.ui.fragments;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,10 +25,11 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tryrosberry.ololostfilm.R;
 
-public class SuperAwesomeCardFragment extends Fragment {
+public class SuperAwesomeCardFragment extends BaseFragment {
 
 	private static final String ARG_POSITION = "position";
 
@@ -73,4 +73,18 @@ public class SuperAwesomeCardFragment extends Fragment {
 		return fl;
 	}
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            getData();
+        }
+
+    }
+
+    @Override
+    public void getData() {
+        //implement what U need
+        if(getActivity()!=null)Toast.makeText(getActivity(),"loading data on fragment "+(position+1),Toast.LENGTH_SHORT).show();
+    }
 }

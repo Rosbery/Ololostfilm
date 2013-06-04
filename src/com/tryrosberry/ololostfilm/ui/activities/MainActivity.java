@@ -27,6 +27,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.tryrosberry.ololostfilm.R;
+import com.tryrosberry.ololostfilm.ui.fragments.BaseFragment;
 import com.tryrosberry.ololostfilm.ui.fragments.SuperAwesomeCardFragment;
 
 public class MainActivity extends SherlockFragmentActivity {
@@ -195,6 +196,7 @@ public class MainActivity extends SherlockFragmentActivity {
             public void onPageSelected(int position) {
                 mDrawerList.setItemChecked(position, true);
                 setTitle(TITLES[position]);
+                ((BaseFragment)mAdapter.getItem(position)).getData();
             }
 
             @Override
