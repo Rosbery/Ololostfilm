@@ -12,7 +12,7 @@ public class LostFilmApp extends Application {
 
     public static final String TAG = "LostFilm";
 
-    public static final boolean DEBUGGING = false;
+    public static final boolean DEBUGGING = true;
     public static final boolean USER_DEBUGGING = !DEBUGGING;
 
     private static LostFilmApp instance;

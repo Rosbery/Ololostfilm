@@ -48,6 +48,7 @@ public class SuperAwesomeCardFragment extends BaseFragment {
 		super.onCreate(savedInstanceState);
 
 		position = getArguments().getInt(ARG_POSITION);
+
 	}
 
 	@Override

@@ -7,4 +7,7 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="error_internet">sorry, no internet...</string>
 
+    <string name="bug_report_title">Bug Report</string>
+    <string name="bug_report_message">Looks like last time an app has crashed. Send a bug report?</string>
+
 </resources>

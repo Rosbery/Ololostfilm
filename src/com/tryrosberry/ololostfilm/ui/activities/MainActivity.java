@@ -1,5 +1,7 @@
 package com.tryrosberry.ololostfilm.ui.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -26,8 +28,13 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
+import com.tryrosberry.ololostfilm.LostFilmApp;
 import com.tryrosberry.ololostfilm.R;
-import com.tryrosberry.ololostfilm.ui.fragments.BaseFragment;
+import com.tryrosberry.ololostfilm.debug.DebugHandler;
+import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
+import com.tryrosberry.ololostfilm.logic.storage.Settings;
+import com.tryrosberry.ololostfilm.ui.fragments.RssFragment;
+import com.tryrosberry.ololostfilm.ui.fragments.SerialFragment;
 import com.tryrosberry.ololostfilm.ui.fragments.SuperAwesomeCardFragment;
 
 public class MainActivity extends SherlockFragmentActivity {
@@ -49,6 +56,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
+    private Settings mSettings = LostFilmApp.getInstance().getSettings();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +118,38 @@ public class MainActivity extends SherlockFragmentActivity {
             selectItem(0);
         }
 
+        final String bug = mSettings.loadCrash();
+        if(LostFilmApp.USER_DEBUGGING){
+            if(!bug.equals("") /*&& !isBugDialogShown*/){
+                /*isBugDialogShown = true;*/
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(R.string.bug_report_title)
+                        .setMessage(R.string.bug_report_message)
+                        .setCancelable(false)
+                        .setPositiveButton(android.R.string.yes,new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                DebugHandler.sendReport(MainActivity.this, bug, ConstantStorage.DEBUG_EMAIL_TO, false);
+                                LostFilmApp.getInstance().getSettings().deleteLastCrash();
+                                dialog.dismiss();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                LostFilmApp.getInstance().getSettings().deleteLastCrash();
+                                dialog.cancel();
+                            }
+                        }).show();
+            }
+        } else{
+            if(!bug.equals("")) {
+                showMessage("Bug",bug);
+                LostFilmApp.getInstance().getSettings().deleteLastCrash();
+            }
+        }
+
+
     }
 
     @Override
@@ -168,8 +208,11 @@ public class MainActivity extends SherlockFragmentActivity {
         args.putInt(PlanetFragment.ARG_PLANET_NUMBER, position);
         fragment.setArguments(args);
 
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();*/
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(android.R.id.content, fragment)
+                .addToBackStack(null).commit();*/
+
+
         mPager.setCurrentItem(position);
 
 
@@ -196,7 +239,6 @@ public class MainActivity extends SherlockFragmentActivity {
             public void onPageSelected(int position) {
                 mDrawerList.setItemChecked(position, true);
                 setTitle(TITLES[position]);
-                ((BaseFragment)mAdapter.getItem(position)).getData();
             }
 
             @Override
@@ -224,7 +266,11 @@ public class MainActivity extends SherlockFragmentActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return SuperAwesomeCardFragment.newInstance(position);
+            switch (position){
+                case 1: return SerialFragment.newInstance(position);
+                case 2: return RssFragment.newInstance(position);
+                default: return SuperAwesomeCardFragment.newInstance(position);
+            }
         }
 
     }
@@ -303,5 +349,17 @@ public class MainActivity extends SherlockFragmentActivity {
         }
     };
 
+    public void showMessage(String title, String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(message)
+                .setNegativeButton(android.R.string.cancel,new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.show();
+    }
 
 }

@@ -2,15 +2,17 @@ package com.tryrosberry.ololostfilm.logic.api;
 
 import android.util.Log;
 
+import com.tryrosberry.ololostfilm.ui.models.RssItem;
+
+import org.apache.http.protocol.HTTP;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -26,9 +28,14 @@ public class FeedParser {
 
             DocumentBuilder db = dbf.newDocumentBuilder();
 
-            InputSource is = new InputSource();
+            /*InputSource is = new InputSource();
             is.setCharacterStream(new StringReader(xml));
-            doc = db.parse(is);
+            is.setEncoding(HTTP.UTF_8);
+            doc = db.parse(is);*/
+
+
+            ByteArrayInputStream encXML = new ByteArrayInputStream(xml.getBytes(HTTP.UTF_16));
+            doc = db.parse(encXML);
 
         } catch (ParserConfigurationException e) {
             Log.e("Error: ", e.getMessage());
@@ -72,66 +79,23 @@ public class FeedParser {
         return nodeStringList;
     }
 
-    /*public static ArrayList<Event> parseEvents(Document doc){
-        ArrayList<Event> events = null;
+    public static ArrayList<RssItem> parseRss(Document doc){
+        ArrayList<RssItem> rssFeed = null;
 
         if(doc != null){
-            events = new ArrayList<Event>(0);
-            NodeList nl = doc.getElementsByTagName("Eventlist"); //parent nod
-            NodeList eventsList = nl.item(0).getChildNodes();
+            rssFeed = new ArrayList<RssItem>(0);
+            NodeList rssList = doc.getElementsByTagName("item"); //parent nod
 
-            if(nl != null && eventsList.getLength() > 0){
-                for (int i = 0; i < eventsList.getLength(); i++) {
-                    Element e = (Element) eventsList.item(i);
-                    events.add(new Event(e));
+            if(rssList != null && rssList.getLength() > 0){
+                for (int i = 0; i < rssList.getLength(); i++) {
+                    Element e = (Element) rssList.item(i);
+                    rssFeed.add(new RssItem(e));
                 }
             }
-        } else events = new ArrayList<Event>(0);
+        } else rssFeed = new ArrayList<RssItem>(0);
 
-        return events;
+        return rssFeed;
     }
-
-    public static List<State> parseStates(Document doc){
-        List<State> states = null;
-
-        if(doc != null){
-            states = new ArrayList<State>(0);
-            NodeList nl = doc.getElementsByTagName("StatesList"); //parent nod
-            NodeList stateList = nl.item(0).getChildNodes();
-
-            if(nl != null && stateList.getLength() > 0){
-                for (int i = 0; i < stateList.getLength(); i++) {
-                    if (stateList.item(i) instanceof Element){
-                        Element e = (Element) stateList.item(i);
-                        states.add(new State(e));
-                    }
-                }
-            }
-        }
-
-        return states;
-    }
-
-    public static List<Genre> parseGenres(Document doc){
-        List<Genre> genres = null;
-
-        if(doc != null){
-            genres = new ArrayList<Genre>(0);
-            NodeList nl = doc.getElementsByTagName("GenresList"); //parent nod
-            NodeList genreList = nl.item(0).getChildNodes();
-
-            if(nl != null && genreList.getLength() > 0){
-                for (int i = 0; i < genreList.getLength(); i++) {
-                    if (genreList.item(i) instanceof Element){
-                        Element e = (Element) genreList.item(i);
-                        genres.add(new Genre(e));
-                    }
-                }
-            }
-        }
-
-        return genres;
-    }*/
 
     public static Document parseResponse(String xml){
         return FeedParser.getDomElement(xml);
