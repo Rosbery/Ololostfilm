@@ -71,6 +71,7 @@ public class RssAdapter extends BaseAdapter {
 
     public void setContent(List<RssItem> content){
         mContent = content;
+        notifyDataSetChanged();
     }
 
     public List<RssItem> getContent(){

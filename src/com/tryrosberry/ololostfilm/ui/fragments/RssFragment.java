@@ -50,6 +50,7 @@ public class RssFragment extends BaseFragment {
 
         View v = inflater.inflate(R.layout.list_layout,null);
         mRssListView = (ListView) v.findViewById(R.id.contentListView);
+        if(mRssListView.getAdapter() == null && mAdapter != null) mRssListView.setAdapter(mAdapter);
 
         return v;
     }
@@ -75,7 +76,7 @@ public class RssFragment extends BaseFragment {
                         super.onStart();
                         if (mProgress == null) {
                             mProgress = ProgressDialog.show(getActivity(), null,
-                                    "Getting News...", true, false);
+                                    "Getting News...", true, true);
                         }
                     }
 
@@ -118,6 +119,7 @@ public class RssFragment extends BaseFragment {
                         mRssList/*,mImageFetcher*/);
                 mRssListView.setAdapter(mAdapter);
             } else mAdapter.setContent(mRssList);
+
         }
 
     }

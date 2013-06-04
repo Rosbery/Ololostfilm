@@ -49,6 +49,7 @@ public class SerialFragment extends BaseFragment {
 
         View v = inflater.inflate(R.layout.list_layout,null);
         mSerialListView = (ListView) v.findViewById(R.id.contentListView);
+        if(mSerialListView.getAdapter() == null && mAdapter != null) mSerialListView.setAdapter(mAdapter);
 
         return v;
     }
@@ -74,7 +75,7 @@ public class SerialFragment extends BaseFragment {
                         super.onStart();
                         if (mProgress == null) {
                             mProgress = ProgressDialog.show(getActivity(), null,
-                                    "Getting Serial List...", true, false);
+                                    "Getting Serial List...", true, true);
                         }
                     }
 
