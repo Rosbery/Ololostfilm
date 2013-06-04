@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">OLOLOStFilm</string>
+    <string name="app_name">LostFilm</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="error_internet">sorry, no internet...</string>
 
 </resources>

@@ -1,6 +1,5 @@
-package com.tryrosberry.ololostfilm;
+package com.tryrosberry.ololostfilm.ui.activities;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -17,9 +16,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.TypedValue;
-import android.view.ActionProvider;
-import android.view.ContextMenu;
-import android.view.SubMenu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,7 +26,8 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
-import com.tryrosberry.ololostfilm.fragments.SuperAwesomeCardFragment;
+import com.tryrosberry.ololostfilm.R;
+import com.tryrosberry.ololostfilm.ui.fragments.SuperAwesomeCardFragment;
 
 public class MainActivity extends SherlockFragmentActivity {
 
@@ -40,7 +37,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
     private PagerSlidingTabStrip mTabs;
     private ViewPager mPager;
-    private MyPagerAdapter mAdapter;
+    private StripePagerAdapter mAdapter;
 
     private Drawable oldBackground = null;
     private int currentColor = 0xFF666666;
@@ -62,14 +59,16 @@ public class MainActivity extends SherlockFragmentActivity {
         //Tabs code
         mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
         mPager = (ViewPager) findViewById(R.id.pager);
-        mAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        mAdapter = new StripePagerAdapter(getSupportFragmentManager());
 
         mPager.setAdapter(mAdapter);
 
-        final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
+        final int pageMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                4, getResources().getDisplayMetrics());
         mPager.setPageMargin(pageMargin);
 
         mTabs.setViewPager(mPager);
+        mTabs.setOnPageChangeListener(pageChangeListener());
 
         changeColor(currentColor);
 
@@ -185,9 +184,29 @@ public class MainActivity extends SherlockFragmentActivity {
         getSupportActionBar().setTitle(mTitle);
     }
 
-    public class MyPagerAdapter extends FragmentPagerAdapter {
+    public ViewPager.OnPageChangeListener pageChangeListener(){
+        return new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i2) {
 
-        public MyPagerAdapter(FragmentManager fm) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                mDrawerList.setItemChecked(position, true);
+                setTitle(TITLES[position]);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        };
+    }
+
+    public class StripePagerAdapter extends FragmentPagerAdapter {
+
+        public StripePagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

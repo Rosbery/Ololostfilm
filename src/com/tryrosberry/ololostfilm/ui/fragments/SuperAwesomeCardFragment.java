@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tryrosberry.ololostfilm.fragments;
+package com.tryrosberry.ololostfilm.ui.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
