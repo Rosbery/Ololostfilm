@@ -90,11 +90,16 @@ public class RssFragment extends BaseFragment {
                     }
 
                     @Override
+                    protected String chooseEncoding() {
+                        return "Windows-1251";
+                    }
+
+                    @Override
                     public void onSuccess(String s) {
                         super.onSuccess(s);
                         if (getActivity() != null) {
                             mRssList = FeedParser.parseRss(FeedParser.parseResponse(s));
-                            if(mAdapter == null) mAdapter = new RssAdapter(getActivity(),
+                            if (mAdapter == null) mAdapter = new RssAdapter(getActivity(),
                                     mRssList/*,mImageFetcher*/);
                             else mAdapter.setContent(mRssList);
 
