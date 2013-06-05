@@ -27,6 +27,7 @@ public class SerialFragment extends BaseFragment {
     private ListView mSerialListView;
     private ArrayList<Serial> mSerialList;
     private SerialAdapter mAdapter;
+    private boolean loadingContent = false;
 
     public static SerialFragment newInstance(int position) {
         SerialFragment f = new SerialFragment();
@@ -65,6 +66,7 @@ public class SerialFragment extends BaseFragment {
 
     @Override
     public void getData() {
+        if(loadingContent) return;
         if(mSerialList == null || mSerialList.isEmpty()){
             if(getActivity() != null && Connectivity.isConnected(getActivity())){
                 LostFilmRestClient.get("/serials.php", null, new AsyncHttpResponseHandler() {
@@ -73,6 +75,7 @@ public class SerialFragment extends BaseFragment {
                     @Override
                     public void onStart() {
                         super.onStart();
+                        loadingContent = true;
                         if (mProgress == null) {
                             mProgress = ProgressDialog.show(getActivity(), null,
                                     "Getting Serial List...", true, true);
@@ -82,6 +85,7 @@ public class SerialFragment extends BaseFragment {
                     @Override
                     public void onFinish() {
                         super.onFinish();
+                        loadingContent = false;
                         if (mProgress != null) {
                             mProgress.dismiss();
                             mProgress = null;

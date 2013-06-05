@@ -24,7 +24,7 @@ public class LostFilmApp extends Application {
         super.onCreate();
         instance = this;
         mDisplay = getResources().getDisplayMetrics();
-        if(USER_DEBUGGING)Thread.setDefaultUncaughtExceptionHandler(new DebugHandler(instance,"bezjamper@gmail.com"));
+        Thread.setDefaultUncaughtExceptionHandler(new DebugHandler(instance,"bezjamper@gmail.com"));
     }
 
     @Override
