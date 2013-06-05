@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,15 +32,20 @@ import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.tryrosberry.ololostfilm.LostFilmApp;
 import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.debug.DebugHandler;
+import com.tryrosberry.ololostfilm.imagefatcher.ImageCache;
+import com.tryrosberry.ololostfilm.imagefatcher.ImageFetcher;
 import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
 import com.tryrosberry.ololostfilm.logic.storage.Settings;
+import com.tryrosberry.ololostfilm.ui.fragments.NewsFragment;
 import com.tryrosberry.ololostfilm.ui.fragments.RssFragment;
 import com.tryrosberry.ololostfilm.ui.fragments.SerialFragment;
 import com.tryrosberry.ololostfilm.ui.fragments.SuperAwesomeCardFragment;
 
 public class MainActivity extends SherlockFragmentActivity {
 
-    private final String[] TITLES = { "Home", "Serials", "Rss" };
+    private final String[] TITLES = { "News", "Serials", "RssFeed" };
+    private static final String IMAGE_CACHE_DIR = "thumbs";
+    private ImageFetcher mImageFetcher;
 
     private final Handler handler = new Handler();
 
@@ -149,7 +155,29 @@ public class MainActivity extends SherlockFragmentActivity {
             }
         }
 
+        final DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        final int height = displayMetrics.heightPixels;
+        final int width = displayMetrics.widthPixels;
 
+        final int longest = (height > width ? height : width) / 2;
+
+        ImageCache.ImageCacheParams cacheParams =
+                new ImageCache.ImageCacheParams(this, IMAGE_CACHE_DIR);
+        cacheParams.setMemCacheSizePercent(0.25f); // Set memory cache to 25% of app memory
+
+        mImageFetcher = new ImageFetcher(this, longest);
+        mImageFetcher.setLoadingImage(R.drawable.ic_launcher);
+        mImageFetcher.addImageCache(getSupportFragmentManager(), cacheParams);
+
+
+    }
+
+    /**
+     * Called by the ViewPager child fragments to load images via the one ImageFetcher
+     */
+    public ImageFetcher getImageFetcher() {
+        return mImageFetcher;
     }
 
     @Override
@@ -164,6 +192,26 @@ public class MainActivity extends SherlockFragmentActivity {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mImageFetcher.setExitTasksEarly(false);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mImageFetcher.setExitTasksEarly(true);
+        mImageFetcher.flushCache();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mImageFetcher.closeCache();
+    }
+
 
     /*@Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -267,6 +315,7 @@ public class MainActivity extends SherlockFragmentActivity {
         @Override
         public Fragment getItem(int position) {
             switch (position){
+                case 0: return NewsFragment.newInstance(position);
                 case 1: return SerialFragment.newInstance(position);
                 case 2: return RssFragment.newInstance(position);
                 default: return SuperAwesomeCardFragment.newInstance(position);

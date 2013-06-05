@@ -1,5 +1,7 @@
 package com.tryrosberry.ololostfilm.logic.api;
 
+import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
+import com.tryrosberry.ololostfilm.ui.models.NewsFeedItem;
 import com.tryrosberry.ololostfilm.ui.models.Serial;
 
 import org.htmlcleaner.ContentNode;
@@ -17,6 +19,10 @@ public class HtmlParser {
         return getSerials(parse(response, "a", "class", "bb_a"));
     }
 
+    public static ArrayList<NewsFeedItem> parseNews(String response){
+        return getNews(parse(response, "div", "class", "content_body"));
+    }
+
     private static List<TagNode> parse(String response, String nodeName, String tagvalue, String CSSClassname) {
         TagNode rootNode = getRootNode(response);
         return getLinksByClass(rootNode, nodeName, tagvalue, CSSClassname);
@@ -28,6 +34,30 @@ public class HtmlParser {
             serials.add(new Serial(node));
         }
         return serials;
+    }
+
+    private static ArrayList<NewsFeedItem> getNews(List<TagNode> nodes) {
+        ArrayList<NewsFeedItem> newsFeed = new ArrayList<NewsFeedItem>();
+        if(nodes.size() >= 1){
+            TagNode newsNodes = nodes.get(0);
+            List<TagNode> newsTagNodes = newsNodes.getChildTagList();
+            List<TagNode> newsTagLinks = getLinksByClass(newsNodes, "a", "class", "a_full_news");
+
+            for (int i = 0; i < newsTagNodes.size(); i++){
+                TagNode feedTagNode = newsTagNodes.get(i);
+                if(feedTagNode.getName().equals("h1")){
+                    NewsFeedItem feedItem = new NewsFeedItem();
+                    feedItem.title = getContent(feedTagNode);
+                    feedItem.image = ConstantStorage.BASE_URL + HtmlParser.getLinksByClass(newsTagNodes.get(i+1),"img").get(0).getAttributeByName("src");
+                    feedItem.description = getContent(newsTagNodes.get(i+2));
+                    if(i < newsTagLinks.size())feedItem.link = ConstantStorage.BASE_URL + (newsTagLinks.get(i).getAttributeByName("href"));
+                    newsFeed.add(feedItem);
+                }
+
+            }
+        }
+
+        return newsFeed;
     }
 
     private static TagNode getRootNode(String response) {
@@ -72,13 +102,7 @@ public class HtmlParser {
     }
 
     public static List<TagNode> getLinksByClass(TagNode rootNode, String nodeName){
-        List<TagNode> linkList = new ArrayList<TagNode>();
-        TagNode linkElements[] = rootNode.getElementsByName(nodeName, true);
-        for (int i = 0; linkElements != null && i < linkElements.length; i++)
-        {
-            linkList.add(linkElements[i]);
-        }
-        return linkList;
+        return rootNode.getElementListByName(nodeName, true);
     }
 
 }

@@ -9,29 +9,29 @@ import android.widget.ListView;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.tryrosberry.ololostfilm.R;
-import com.tryrosberry.ololostfilm.logic.api.FeedParser;
+import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
 import com.tryrosberry.ololostfilm.logic.api.LostFilmRestClient;
-import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
 import com.tryrosberry.ololostfilm.ui.activities.MainActivity;
-import com.tryrosberry.ololostfilm.ui.adapters.RssAdapter;
-import com.tryrosberry.ololostfilm.ui.models.RssItem;
+import com.tryrosberry.ololostfilm.ui.adapters.NewsAdapter;
+import com.tryrosberry.ololostfilm.ui.models.NewsFeedItem;
 import com.tryrosberry.ololostfilm.utils.Connectivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class RssFragment extends BaseFragment {
+public class NewsFragment extends BaseFragment {
 
     private static final String ARG_POSITION = "position";
 
     private int position;
-    private ListView mRssListView;
-    private ArrayList<RssItem> mRssList;
-    private RssAdapter mAdapter;
+    private ListView mSerialListView;
+    private ArrayList<NewsFeedItem> mNewsList;
+    private NewsAdapter mAdapter;
+    private int mPage = 0;
     private boolean loadingContent = false;
 
-    public static RssFragment newInstance(int position) {
-        RssFragment f = new RssFragment();
+    public static NewsFragment newInstance(int position) {
+        NewsFragment f = new NewsFragment();
         Bundle b = new Bundle();
         b.putInt(ARG_POSITION, position);
         f.setArguments(b);
@@ -50,8 +50,8 @@ public class RssFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.list_layout,null);
-        mRssListView = (ListView) v.findViewById(R.id.contentListView);
-        if(mRssListView.getAdapter() == null && mAdapter != null) mRssListView.setAdapter(mAdapter);
+        mSerialListView = (ListView) v.findViewById(R.id.contentListView);
+        if(mSerialListView.getAdapter() == null && mAdapter != null) mSerialListView.setAdapter(mAdapter);
 
         return v;
     }
@@ -68,9 +68,9 @@ public class RssFragment extends BaseFragment {
     @Override
     public void getData() {
         if(loadingContent) return;
-        if(mRssList == null || mRssList.isEmpty()){
+        if(mNewsList == null || mNewsList.isEmpty()){
             if(getActivity() != null && Connectivity.isConnected(getActivity())){
-                LostFilmRestClient.get(ConstantStorage.RSS_URL, null, new AsyncHttpResponseHandler() {
+                LostFilmRestClient.get(mPage == 0 ? "/news.php" : "/news.php?o="+mPage+"0", null, new AsyncHttpResponseHandler() {
                     private ProgressDialog mProgress;
 
                     @Override
@@ -79,7 +79,7 @@ public class RssFragment extends BaseFragment {
                         loadingContent = true;
                         if (mProgress == null) {
                             mProgress = ProgressDialog.show(getActivity(), null,
-                                    "Getting News...", true, true);
+                                    "Getting NewsFeed...", true, true);
                         }
                     }
 
@@ -97,19 +97,19 @@ public class RssFragment extends BaseFragment {
                     public void onSuccess(String s) {
                         super.onSuccess(s);
                         if (getActivity() != null) {
-                            mRssList = FeedParser.parseRss(FeedParser.parseResponse(s));
-                            if(mAdapter == null) mAdapter = new RssAdapter(getActivity(),
-                                    mRssList/*,mImageFetcher*/);
-                            else mAdapter.setContent(mRssList);
+                            mNewsList = HtmlParser.parseNews(s);
+                            if (mAdapter == null) mAdapter = new NewsAdapter(getActivity(),
+                                    mNewsList,((MainActivity)getActivity()).getImageFetcher());
+                            else mAdapter.setContent(mNewsList);
 
-                            mRssListView.setAdapter(mAdapter);
+                            mSerialListView.setAdapter(mAdapter);
                         }
                     }
 
                     @Override
                     public void onFailure(Throwable throwable, String s) {
                         super.onFailure(throwable, s);
-                        if (RssFragment.this.isAdded()) {
+                        if (NewsFragment.this.isAdded()) {
                             if (throwable instanceof IOException) {
                                 ((MainActivity) getActivity()).showMessage("Error", getString(R.string.error_internet) + "\n" + s);
                             } else ((MainActivity) getActivity()).showMessage("ERROR", throwable.toString());
@@ -119,14 +119,12 @@ public class RssFragment extends BaseFragment {
             } else ((MainActivity)getActivity()).showMessage("Error",getString(R.string.error_internet));
         } else {
             if(mAdapter == null){
-                mAdapter = new RssAdapter(getActivity(),
-                        mRssList/*,mImageFetcher*/);
-                mRssListView.setAdapter(mAdapter);
-            } else mAdapter.setContent(mRssList);
+                mAdapter = new NewsAdapter(getActivity(),
+                        mNewsList,((MainActivity)getActivity()).getImageFetcher());
+                mSerialListView.setAdapter(mAdapter);
+            } else mAdapter.setContent(mNewsList);
 
         }
 
     }
-
 }
-
