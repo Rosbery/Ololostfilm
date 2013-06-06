@@ -14,7 +14,6 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
 import com.tryrosberry.ololostfilm.logic.api.LostFilmRestClient;
-import com.tryrosberry.ololostfilm.ui.activities.MainActivity;
 import com.tryrosberry.ololostfilm.utils.Connectivity;
 
 import org.htmlcleaner.TagNode;
@@ -75,16 +74,6 @@ public class NewsDetailFragment extends BaseFragment {
         getMainActivity().getSupportActionBar().show();
     }
 
-    /*@Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            if(getActivity() != null)getData();
-            Toast.makeText(getActivity(),"DETAILS",Toast.LENGTH_SHORT).show();
-        }
-
-    }*/
-
     @Override
     public void getData() {
         if(loadingContent) return;
@@ -133,15 +122,16 @@ public class NewsDetailFragment extends BaseFragment {
                         }
                     }
                 });
-            } else getMainActivity().showMessage("Error",getString(R.string.error_internet));
+            } else getMainActivity().showMessage("Error", getString(R.string.error_internet));
         }
 
     }
 
     private void parseDetails(String s){
         List<TagNode> nodes = HtmlParser.parseNewsDetails(s);
+        TagNode newsRootNode = nodes.get(0);
         if(nodes.size() >= 1){
-            TagNode newsContent = nodes.get(0);
+            TagNode newsContent = newsRootNode;
             List <TagNode> descriptItems = newsContent.getChildTagList();
             //new versting
             List<TagNode> newVerstNews = HtmlParser.getLinksByClass(newsContent, "div", "class", "news-container");
@@ -153,14 +143,17 @@ public class NewsDetailFragment extends BaseFragment {
             }
             //
             if(descriptItems.size() > 0){
-                //mContainer.removeAllViews();
-                for(TagNode item : descriptItems){
+                int textCounter = 0;
+                for(int i = 0; i < descriptItems.size();i++){
+                    TagNode item = descriptItems.get(i);
                     if(item.getName().equals("p")){
-                        makeText(item);
+                        if(textCounter != 0 && !HtmlParser.getContent(item).contains("Дата")){
+                            if(makeText(item)) textCounter++;
+                        }
                     } else if(item.getName().equals("div")){
                         String classType = item.getAttributeByName("class");
                         if(classType != null && classType.equals("center")){
-                            makeText(item);
+                            if(makeText(item)) textCounter++;
                             ImageView image = new ImageView(getActivity());
                             image.setPadding(5,5,5,5);
                             List<TagNode> imageUrls = HtmlParser.getLinksByClass(item, "img");
@@ -175,18 +168,24 @@ public class NewsDetailFragment extends BaseFragment {
                     }
 
                 }
+
+                if(textCounter <= 1){
+                    makeText(newsRootNode);
+                }
+
             }
 
         }
     }
 
-    private void makeText(TagNode item){
+    private boolean makeText(TagNode item){
         TextView text = new TextView(getActivity());
         String textContent = HtmlParser.getContent(item);
         if(!textContent.trim().equals("")){
             text.setText(Html.fromHtml(textContent));
             mContainer.addView(text);
-        }
+            return true;
+        } else return false;
     }
 
 }

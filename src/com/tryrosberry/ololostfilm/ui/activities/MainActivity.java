@@ -44,7 +44,7 @@ import com.tryrosberry.ololostfilm.ui.fragments.SuperAwesomeCardFragment;
 
 public class MainActivity extends SherlockFragmentActivity {
 
-    private final String[] TITLES = { "News", "Serials", "RssFeed" };
+    private String[] TITLES = new String[]{};
     private static final String IMAGE_CACHE_DIR = "thumbs";
     private ImageFetcher mImageFetcher;
 
@@ -70,6 +70,7 @@ public class MainActivity extends SherlockFragmentActivity {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        TITLES = getResources().getStringArray(R.array.tab_titles);
 
         setContentView(R.layout.activity_main);
 

@@ -84,6 +84,7 @@ public class HtmlParser {
             if (item instanceof ContentNode) {
                 result.append(((ContentNode) item).getContent());
             } else if(item instanceof TagNode){
+                if(((TagNode) item).getName().equals("br") || ((TagNode) item).getName().equals("p")) result.append("<br>");
                 result.append(getContent((TagNode) item));
             }
         }

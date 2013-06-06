@@ -60,7 +60,7 @@ public class NewsFragment extends BaseFragment {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if(mNewsList != null && firstVisibleItem >= totalItemCount - 3){
+                if(mNewsList != null && firstVisibleItem >= totalItemCount - 5){
                     if(mPage == lastPage){
                         mPage++;
                         getData();
