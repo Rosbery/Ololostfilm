@@ -27,6 +27,10 @@ public class HtmlParser {
         return parse(response, "div", "class", "content_body");
     }
 
+    public static List<TagNode> parseSerialDetails(String response){
+        return getLinksByClass(parse(response, "div", "class", "mid").get(0), "div", false); // get all <div> in <div class="mid"> //needed 0-1 items
+    }
+
     private static List<TagNode> parse(String response, String nodeName, String tagvalue, String CSSClassname) {
         TagNode rootNode = getRootNode(response);
         return getLinksByClass(rootNode, nodeName, tagvalue, CSSClassname);
@@ -85,6 +89,7 @@ public class HtmlParser {
                 result.append(((ContentNode) item).getContent());
             } else if(item instanceof TagNode){
                 if(((TagNode) item).getName().equals("br") || ((TagNode) item).getName().equals("p")) result.append("<br>");
+                else if (((TagNode) item).getName().equals("script")) continue;
                 result.append(getContent((TagNode) item));
             }
         }
@@ -108,6 +113,10 @@ public class HtmlParser {
         }
 
         return linkList;
+    }
+
+    public static List<TagNode> getLinksByClass(TagNode rootNode, String nodeName, boolean recursive){
+        return rootNode.getElementListByName(nodeName, recursive);
     }
 
     public static List<TagNode> getLinksByClass(TagNode rootNode, String nodeName){

@@ -5,7 +5,7 @@
             android:fillViewport="true">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:id="@+id/newsContent"
+                  android:id="@+id/elementContent"
                   android:orientation="vertical"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"
@@ -13,10 +13,16 @@
                   android:background="@android:color/white">
 
         <TextView
-                android:id="@+id/newsDetTitle"
+                android:id="@+id/elementTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
+                android:background="@drawable/background_card"
+                android:paddingLeft="2dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="5dp"
+                android:paddingRight="2dp"
+                android:layout_marginBottom="5dp"
                 android:textAppearance="?android:textAppearanceMedium"
                 android:text="Name"/>
 

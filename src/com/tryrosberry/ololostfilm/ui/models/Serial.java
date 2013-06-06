@@ -1,7 +1,6 @@
 package com.tryrosberry.ololostfilm.ui.models;
 
 import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
-import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
 
 import org.htmlcleaner.TagNode;
 
@@ -20,7 +19,7 @@ public class Serial implements Serializable {
     public Serial(){}
 
     public Serial(TagNode node){
-        url = ConstantStorage.BASE_URL + node.getAttributeByName("href");
+        url = node.getAttributeByName("href");
         name = HtmlParser.getContent(node);
         subName = HtmlParser.getContent(HtmlParser.getLinksByClass(node,"span").get(0));
     }
