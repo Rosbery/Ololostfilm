@@ -111,12 +111,12 @@ public class RssFragment extends BaseFragment {
                         super.onFailure(throwable, s);
                         if (RssFragment.this.isAdded()) {
                             if (throwable instanceof IOException) {
-                                ((MainActivity) getActivity()).showMessage("Error", getString(R.string.error_internet) + "\n" + s);
-                            } else ((MainActivity) getActivity()).showMessage("ERROR", throwable.toString());
+                                getMainActivity().showMessage("Error", getString(R.string.error_internet) + "\n" + s);
+                            } else getMainActivity().showMessage("ERROR", throwable.toString());
                         }
                     }
                 });
-            } else ((MainActivity)getActivity()).showMessage("Error",getString(R.string.error_internet));
+            } else getMainActivity().showMessage("Error",getString(R.string.error_internet));
         } else {
             if(mAdapter == null){
                 mAdapter = new RssAdapter(getActivity(),

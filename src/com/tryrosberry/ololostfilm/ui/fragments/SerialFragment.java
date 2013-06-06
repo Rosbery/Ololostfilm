@@ -11,7 +11,6 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
 import com.tryrosberry.ololostfilm.logic.api.LostFilmRestClient;
-import com.tryrosberry.ololostfilm.ui.activities.MainActivity;
 import com.tryrosberry.ololostfilm.ui.adapters.SerialAdapter;
 import com.tryrosberry.ololostfilm.ui.models.Serial;
 import com.tryrosberry.ololostfilm.utils.Connectivity;
@@ -110,12 +109,12 @@ public class SerialFragment extends BaseFragment {
                         super.onFailure(throwable, s);
                         if (SerialFragment.this.isAdded()) {
                             if (throwable instanceof IOException) {
-                                ((MainActivity) getActivity()).showMessage("Error", getString(R.string.error_internet) + "\n" + s);
-                            } else ((MainActivity) getActivity()).showMessage("ERROR", throwable.toString());
+                                getMainActivity().showMessage("Error", getString(R.string.error_internet) + "\n" + s);
+                            } else getMainActivity().showMessage("ERROR", throwable.toString());
                         }
                     }
                 });
-            } else ((MainActivity)getActivity()).showMessage("Error",getString(R.string.error_internet));
+            } else getMainActivity().showMessage("Error",getString(R.string.error_internet));
         } else {
             if(mAdapter == null){
                 mAdapter = new SerialAdapter(getActivity(),

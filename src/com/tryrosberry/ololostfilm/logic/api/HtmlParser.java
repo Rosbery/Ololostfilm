@@ -23,6 +23,10 @@ public class HtmlParser {
         return getNews(parse(response, "div", "class", "content_body"));
     }
 
+    public static List<TagNode> parseNewsDetails(String response){
+        return parse(response, "div", "class", "content_body");
+    }
+
     private static List<TagNode> parse(String response, String nodeName, String tagvalue, String CSSClassname) {
         TagNode rootNode = getRootNode(response);
         return getLinksByClass(rootNode, nodeName, tagvalue, CSSClassname);
@@ -43,6 +47,7 @@ public class HtmlParser {
             List<TagNode> newsTagNodes = newsNodes.getChildTagList();
             List<TagNode> newsTagLinks = getLinksByClass(newsNodes, "a", "class", "a_full_news");
 
+            int hcounter = 0;
             for (int i = 0; i < newsTagNodes.size(); i++){
                 TagNode feedTagNode = newsTagNodes.get(i);
                 if(feedTagNode.getName().equals("h1")){
@@ -50,8 +55,9 @@ public class HtmlParser {
                     feedItem.title = getContent(feedTagNode);
                     feedItem.image = ConstantStorage.BASE_URL + HtmlParser.getLinksByClass(newsTagNodes.get(i+1),"img").get(0).getAttributeByName("src");
                     feedItem.description = getContent(newsTagNodes.get(i+2));
-                    if(i < newsTagLinks.size())feedItem.link = ConstantStorage.BASE_URL + (newsTagLinks.get(i).getAttributeByName("href"));
+                    if(hcounter < newsTagLinks.size())feedItem.link = newsTagLinks.get(hcounter).getAttributeByName("href");
                     newsFeed.add(feedItem);
+                    hcounter++;
                 }
 
             }
@@ -77,12 +83,14 @@ public class HtmlParser {
         for (Object item : items) {
             if (item instanceof ContentNode) {
                 result.append(((ContentNode) item).getContent());
+            } else if(item instanceof TagNode){
+                result.append(getContent((TagNode) item));
             }
         }
         return result.toString();
     }
 
-    private static List<TagNode> getLinksByClass(TagNode rootNode, String nodeName, String TagVal, String CSSClassname){
+    public static List<TagNode> getLinksByClass(TagNode rootNode, String nodeName, String TagVal, String CSSClassname){
         List<TagNode> linkList = new ArrayList<TagNode>();
 
         //Выбираем все ссылки
