@@ -3,6 +3,7 @@ package com.tryrosberry.ololostfilm.logic.api;
 import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
 import com.tryrosberry.ololostfilm.ui.models.NewsFeedItem;
 import com.tryrosberry.ololostfilm.ui.models.Serial;
+import com.tryrosberry.ololostfilm.ui.models.Sesson;
 
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.HtmlCleaner;
@@ -125,4 +126,33 @@ public class HtmlParser {
         return rootNode.getElementListByName(nodeName, true);
     }
 
+    public static ArrayList<Sesson> getSessons(TagNode serialTorrListNode) {
+        ArrayList<Sesson> sessons = new ArrayList<Sesson>();
+
+        List<TagNode> torrentsNodes = HtmlParser.getLinksByClass(serialTorrListNode,"div");
+        if(torrentsNodes.size() > 0){
+            for(TagNode torNod : torrentsNodes){
+                String classType = torNod.getAttributeByName("class");
+                if (classType != null){
+                    //create a ll with 1 season (inflate)
+                    boolean hasContent = false;
+                    if(classType.equals("content")){
+                        create Sesson text
+                        hasContent = makeText(torNod);
+                    } else if(classType.contains("t_row")){
+                        create Series text
+                        List<TagNode> numbers = HtmlParser.getLinksByClass(torNod,"td","class","t_episode_num");
+                        hasContent = makeText(numbers.get(0));
+                        List<TagNode> titles = HtmlParser.getLinksByClass(torNod,"nobr",true);
+                        hasContent = makeText(titles.get(0));
+                    }
+
+                            /*if (hasContent){
+                                mContainer.addView(season);
+                            }*/
+                }
+            }
+        }
+        return null; Return Sessons with series
+    }
 }

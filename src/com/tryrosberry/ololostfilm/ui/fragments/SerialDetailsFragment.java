@@ -150,30 +150,7 @@ public class SerialDetailsFragment extends BaseFragment {
 
             TagNode serialTorrListNode = nodes.get(1);
             if(serialTorrListNode != null){
-
-                List<TagNode> torrentsNodes = HtmlParser.getLinksByClass(serialTorrListNode,"div");
-                if(torrentsNodes.size() > 0){
-                    for(TagNode torNod : torrentsNodes){
-                        mSessonList.add(new Sesson());
-                        String classType = torNod.getAttributeByName("class");
-                        if (classType != null){
-                            //create a ll with 1 season (inflate)
-                            boolean hasContent = false;
-                            if(classType.equals("content")){
-                               hasContent = makeText(torNod);
-                            } else if(classType.contains("t_row")){
-                               List<TagNode> numbers = HtmlParser.getLinksByClass(torNod,"td","class","t_episode_num");
-                               hasContent = makeText(numbers.get(0));
-                               List<TagNode> titles = HtmlParser.getLinksByClass(torNod,"nobr",true);
-                               hasContent = makeText(titles.get(0));
-                            }
-
-                            /*if (hasContent){
-                                mContainer.addView(season);
-                            }*/
-                        }
-                    }
-                }
+                mSessonList = HtmlParser.getSessons(serialTorrListNode);
             }
 
         }
