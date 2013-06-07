@@ -1,6 +1,8 @@
 package com.tryrosberry.ololostfilm.ui.adapters;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +14,8 @@ import android.widget.TextView;
 
 import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.imagefatcher.ImageFetcher;
+import com.tryrosberry.ololostfilm.ui.activities.MainActivity;
+import com.tryrosberry.ololostfilm.ui.fragments.NewsDetailFragment;
 import com.tryrosberry.ololostfilm.ui.models.NewsFeedItem;
 
 import java.util.List;
@@ -69,6 +73,17 @@ public class NewsAdapter extends BaseAdapter {
         viewHolder.tile.setText(Html.fromHtml(pickedNewsFeed.title));
         viewHolder.description.setText(Html.fromHtml(pickedNewsFeed.description));
 
+        rootView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = NewsDetailFragment.newInstance(pickedNewsFeed.title,pickedNewsFeed.link);
+
+                FragmentManager fragmentManager = ((MainActivity)mContext).getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(android.R.id.content, fragment)
+                .addToBackStack(null).commit();
+            }
+        });
+
         return rootView;
     }
 
@@ -80,6 +95,10 @@ public class NewsAdapter extends BaseAdapter {
 
     public void setContent(List<NewsFeedItem> content){
         mContent = content;
+    }
+
+    public void addContent(List<NewsFeedItem> content){
+        mContent.addAll(content);
     }
 
     public List<NewsFeedItem> getContent(){

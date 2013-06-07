@@ -23,6 +23,14 @@ public class HtmlParser {
         return getNews(parse(response, "div", "class", "content_body"));
     }
 
+    public static List<TagNode> parseNewsDetails(String response){
+        return parse(response, "div", "class", "content_body");
+    }
+
+    public static List<TagNode> parseSerialDetails(String response){
+        return getLinksByClass(parse(response, "div", "class", "mid").get(0), "div", false); // get all <div> in <div class="mid"> //needed 0-1 items
+    }
+
     private static List<TagNode> parse(String response, String nodeName, String tagvalue, String CSSClassname) {
         TagNode rootNode = getRootNode(response);
         return getLinksByClass(rootNode, nodeName, tagvalue, CSSClassname);
@@ -43,6 +51,7 @@ public class HtmlParser {
             List<TagNode> newsTagNodes = newsNodes.getChildTagList();
             List<TagNode> newsTagLinks = getLinksByClass(newsNodes, "a", "class", "a_full_news");
 
+            int hcounter = 0;
             for (int i = 0; i < newsTagNodes.size(); i++){
                 TagNode feedTagNode = newsTagNodes.get(i);
                 if(feedTagNode.getName().equals("h1")){
@@ -50,8 +59,9 @@ public class HtmlParser {
                     feedItem.title = getContent(feedTagNode);
                     feedItem.image = ConstantStorage.BASE_URL + HtmlParser.getLinksByClass(newsTagNodes.get(i+1),"img").get(0).getAttributeByName("src");
                     feedItem.description = getContent(newsTagNodes.get(i+2));
-                    if(i < newsTagLinks.size())feedItem.link = ConstantStorage.BASE_URL + (newsTagLinks.get(i).getAttributeByName("href"));
+                    if(hcounter < newsTagLinks.size())feedItem.link = newsTagLinks.get(hcounter).getAttributeByName("href");
                     newsFeed.add(feedItem);
+                    hcounter++;
                 }
 
             }
@@ -76,14 +86,17 @@ public class HtmlParser {
         List<Object> items = node.getAllChildren();
         for (Object item : items) {
             if (item instanceof ContentNode) {
-                String content = ((ContentNode) item).getContent();
-                result.append(content);
+                result.append(((ContentNode) item).getContent());
+            } else if(item instanceof TagNode){
+                if(((TagNode) item).getName().equals("br") || ((TagNode) item).getName().equals("p")) result.append("<br>");
+                else if (((TagNode) item).getName().equals("script")) continue;
+                result.append(getContent((TagNode) item));
             }
         }
         return result.toString();
     }
 
-    private static List<TagNode> getLinksByClass(TagNode rootNode, String nodeName, String TagVal, String CSSClassname){
+    public static List<TagNode> getLinksByClass(TagNode rootNode, String nodeName, String TagVal, String CSSClassname){
         List<TagNode> linkList = new ArrayList<TagNode>();
 
         //Выбираем все ссылки
@@ -100,6 +113,10 @@ public class HtmlParser {
         }
 
         return linkList;
+    }
+
+    public static List<TagNode> getLinksByClass(TagNode rootNode, String nodeName, boolean recursive){
+        return rootNode.getElementListByName(nodeName, recursive);
     }
 
     public static List<TagNode> getLinksByClass(TagNode rootNode, String nodeName){

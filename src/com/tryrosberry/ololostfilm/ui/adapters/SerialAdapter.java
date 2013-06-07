@@ -1,6 +1,8 @@
 package com.tryrosberry.ololostfilm.ui.adapters;
 
 import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +12,8 @@ import android.widget.TextView;
 
 import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.imagefatcher.ImageFetcher;
+import com.tryrosberry.ololostfilm.ui.activities.MainActivity;
+import com.tryrosberry.ololostfilm.ui.fragments.SerialDetailsFragment;
 import com.tryrosberry.ololostfilm.ui.models.Serial;
 
 import java.util.List;
@@ -61,6 +65,17 @@ public class SerialAdapter extends BaseAdapter {
 
         viewHolder.name.setText((position+1) + ". " + Html.fromHtml(pickedSerial.name));
         viewHolder.subName.setText(pickedSerial.subName);
+
+        rootView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment fragment = SerialDetailsFragment.newInstance(pickedSerial.name, pickedSerial.url);
+
+                FragmentManager fragmentManager = ((MainActivity)mContext).getSupportFragmentManager();
+                fragmentManager.beginTransaction().replace(android.R.id.content, fragment)
+                        .addToBackStack(null).commit();
+            }
+        });
 
         return rootView;
     }
