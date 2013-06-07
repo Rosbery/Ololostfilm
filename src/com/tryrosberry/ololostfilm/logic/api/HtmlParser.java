@@ -76,7 +76,8 @@ public class HtmlParser {
         List<Object> items = node.getAllChildren();
         for (Object item : items) {
             if (item instanceof ContentNode) {
-                result.append(((ContentNode) item).getContent());
+                String content = ((ContentNode) item).getContent();
+                result.append(content);
             }
         }
         return result.toString();
