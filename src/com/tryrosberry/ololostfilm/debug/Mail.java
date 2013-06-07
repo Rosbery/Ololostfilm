@@ -1,5 +1,6 @@
 package com.tryrosberry.ololostfilm.debug;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,17 +16,18 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+
 public class Mail extends javax.mail.Authenticator {
 	private String mailhost = "smtp.gmail.com";   
     private String user;   
     private String password;   
-    private Session session;   
+    private Session session;
 
     public Mail(String user, String password) {   
         this.user = user;   
         this.password = password;   
 
-        Properties props = new Properties();   
+        Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");   
         props.setProperty("mail.host", mailhost);   
         props.put("mail.smtp.auth", "true");   
@@ -36,31 +38,31 @@ public class Mail extends javax.mail.Authenticator {
         props.put("mail.smtp.socketFactory.fallback", "false");   
         props.setProperty("mail.smtp.quitwait", "false");   
 
-        session = Session.getDefaultInstance(props, this);   
+        session = Session.getDefaultInstance(props, this);
     }   
 
-    protected PasswordAuthentication getPasswordAuthentication() {   
+    protected PasswordAuthentication getPasswordAuthentication() {
         return new PasswordAuthentication(user, password);   
     }   
 
     public synchronized void sendMail(String subject, String body, String sender, String recipients) throws Exception {   
         try{
-        MimeMessage message = new MimeMessage(session);   
-        DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));   
-        message.setSender(new InternetAddress(sender));   
+        MimeMessage message = new MimeMessage(session);
+        DataHandler handler = new DataHandler(new ByteArrayDataSource(body.getBytes(), "text/plain"));
+        message.setSender(new InternetAddress(sender));
         message.setSubject(subject);   
         message.setDataHandler(handler);   
         if (recipients.indexOf(',') > 0)   
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));   
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipients));
         else  
             message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipients));   
-        Transport.send(message);   
+        Transport.send(message);
         }catch(Exception e){
 
         }
     }   
 
-    public class ByteArrayDataSource implements DataSource {   
+    public class ByteArrayDataSource implements DataSource {
         private byte[] data;   
         private String type;   
 
@@ -86,15 +88,15 @@ public class Mail extends javax.mail.Authenticator {
                 return type;   
         }   
 
-        public InputStream getInputStream() throws IOException {   
-            return new ByteArrayInputStream(data);   
+        public InputStream getInputStream() throws IOException {
+            return new ByteArrayInputStream(data);
         }   
 
         public String getName() {   
             return "ByteArrayDataSource";   
         }   
 
-        public OutputStream getOutputStream() throws IOException {   
+        public OutputStream getOutputStream() throws IOException {
             throw new IOException("Not Supported");   
         }   
     }   

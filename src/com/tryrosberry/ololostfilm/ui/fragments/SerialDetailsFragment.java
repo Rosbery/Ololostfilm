@@ -17,11 +17,13 @@ import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
 import com.tryrosberry.ololostfilm.logic.api.LostFilmRestClient;
 import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
+import com.tryrosberry.ololostfilm.ui.models.Sesson;
 import com.tryrosberry.ololostfilm.utils.Connectivity;
 
 import org.htmlcleaner.TagNode;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SerialDetailsFragment extends BaseFragment {
@@ -34,6 +36,7 @@ public class SerialDetailsFragment extends BaseFragment {
     private String link;
     private boolean loadingContent = false;
     private boolean gotDescription = false;
+    private ArrayList<Sesson> mSessonList;
 
     public static SerialDetailsFragment newInstance(String title, String link) {
         SerialDetailsFragment f = new SerialDetailsFragment();
@@ -50,7 +53,7 @@ public class SerialDetailsFragment extends BaseFragment {
 
         title = getArguments().getString(ARG_TITLE);
         link = getArguments().getString(ARG_LINK);
-
+        mSessonList = new ArrayList<Sesson>();
         getMainActivity().getSupportActionBar().hide();
 
     }
@@ -147,9 +150,11 @@ public class SerialDetailsFragment extends BaseFragment {
 
             TagNode serialTorrListNode = nodes.get(1);
             if(serialTorrListNode != null){
+
                 List<TagNode> torrentsNodes = HtmlParser.getLinksByClass(serialTorrListNode,"div");
                 if(torrentsNodes.size() > 0){
                     for(TagNode torNod : torrentsNodes){
+                        mSessonList.add(new Sesson());
                         String classType = torNod.getAttributeByName("class");
                         if (classType != null){
                             //create a ll with 1 season (inflate)

@@ -16,7 +16,9 @@ public class HtmlParser {
     public HtmlParser(){}
 
     public static ArrayList<Serial> parseSerials(String response){
-        return getSerials(parse(response, "a", "class", "bb_a"));
+        TagNode rootNode = getRootNode(response);
+        rootNode = getLinksByClass(rootNode, "div", "class", "mid").get(0);
+        return getSerials(getLinksByClass(rootNode, "a", "class", "bb_a"));
     }
 
     public static ArrayList<NewsFeedItem> parseNews(String response){
