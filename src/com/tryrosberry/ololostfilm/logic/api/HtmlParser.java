@@ -137,14 +137,14 @@ public class HtmlParser {
                     //create a ll with 1 season (inflate)
                     boolean hasContent = false;
                     if(classType.equals("content")){
-                        create Sesson text
-                        hasContent = makeText(torNod);
+                        //create Sesson text
+                        //hasContent = makeText(torNod);
                     } else if(classType.contains("t_row")){
-                        create Series text
+                        //create Series text
                         List<TagNode> numbers = HtmlParser.getLinksByClass(torNod,"td","class","t_episode_num");
-                        hasContent = makeText(numbers.get(0));
+                        //hasContent = makeText(numbers.get(0));
                         List<TagNode> titles = HtmlParser.getLinksByClass(torNod,"nobr",true);
-                        hasContent = makeText(titles.get(0));
+                        //hasContent = makeText(titles.get(0));
                     }
 
                             /*if (hasContent){
@@ -153,6 +153,6 @@ public class HtmlParser {
                 }
             }
         }
-        return null; Return Sessons with series
+        return null; //Return Sessons with series
     }
 }
