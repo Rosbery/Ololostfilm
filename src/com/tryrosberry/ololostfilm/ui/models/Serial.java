@@ -7,15 +7,14 @@ import org.htmlcleaner.TagNode;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-/**
- * Created by extazy on 04.06.13.
- */
 public class Serial implements Serializable {
 
     public String name;
     public String subName;
     public String url;
-    public ArrayList<Sesson> sessons = new ArrayList<Sesson>();
+    public SerialDetails details;
+    public ArrayList<Season> seasons = new ArrayList<Season>();
+    public int seasonCounter = 0;
 
     public Serial(){}
 
@@ -23,5 +22,13 @@ public class Serial implements Serializable {
         url = node.getAttributeByName("href");
         name = HtmlParser.getContent(node);
         subName = HtmlParser.getContent(HtmlParser.getLinksByClass(node,"span").get(0));
+    }
+
+    public void setSeasons(ArrayList<Season> seasons){
+        this.seasons = seasons;
+    }
+
+    public void setDetails(SerialDetails details){
+        this.details = details;
     }
 }

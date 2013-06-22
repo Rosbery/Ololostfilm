@@ -87,7 +87,7 @@ public class NewsFragment extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            if(getActivity() != null)getData();
+            if(getActivity() != null && mPage == 0)getData();
         }
 
     }

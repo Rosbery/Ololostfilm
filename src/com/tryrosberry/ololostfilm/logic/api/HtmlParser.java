@@ -2,8 +2,10 @@ package com.tryrosberry.ololostfilm.logic.api;
 
 import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
 import com.tryrosberry.ololostfilm.ui.models.NewsFeedItem;
+import com.tryrosberry.ololostfilm.ui.models.Season;
 import com.tryrosberry.ololostfilm.ui.models.Serial;
-import com.tryrosberry.ololostfilm.ui.models.Sesson;
+import com.tryrosberry.ololostfilm.ui.models.SerialDetails;
+import com.tryrosberry.ololostfilm.ui.models.Series;
 
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.HtmlCleaner;
@@ -73,6 +75,86 @@ public class HtmlParser {
         return newsFeed;
     }
 
+    public static Serial getSerialDetails(String s){
+        Serial serial = new Serial();
+        SerialDetails detail;
+        ArrayList<Season> seasons;
+        List<TagNode> nodes = HtmlParser.parseSerialDetails(s);
+        if(nodes.size() >= 2){
+
+            TagNode serialDescriptionNode = nodes.get(0);
+            if(serialDescriptionNode != null){
+
+                detail = new SerialDetails();
+
+                String url = HtmlParser.getLinksByClass(serialDescriptionNode,"img").get(0).getAttributeByName("src");
+                if(!url.trim().equals("")){
+                    url = ConstantStorage.BASE_URL + url;
+                    detail.imageLink = url;
+                }
+
+                String description = HtmlParser.getContent(serialDescriptionNode);
+                if(!description.trim().equals("")) detail.description = description;
+
+                serial.setDetails(detail);
+
+            }
+
+            TagNode serialTorrListNode = nodes.get(1);
+            if(serialTorrListNode != null){
+                seasons = HtmlParser.getSessons(serialTorrListNode);
+                serial.seasonCounter = seasons.size();
+                serial.setSeasons(seasons);
+            }
+
+        }
+
+        return serial;
+    }
+
+    public static ArrayList<Season> getSessons(TagNode serialTorrListNode) {
+        ArrayList<Season> seasons = new ArrayList<Season>();
+
+        List<TagNode> torrentsNodes = HtmlParser.getLinksByClass(serialTorrListNode,"div");
+        if(torrentsNodes.size() > 0){
+
+            Season season = null;
+            for(TagNode torNod : torrentsNodes){
+                String classType = torNod.getAttributeByName("class");
+                if (classType != null){
+                    //create a ll with 1 season (inflate)
+                    if(classType.equals("content")){
+                        if(season != null)seasons.add(season);
+                        season = new Season();
+                        season.name = HtmlParser.getContent(torNod);
+                    } else if(classType.contains("t_row")){
+
+                        Series series = new Series();
+                        season.seriesCounter++;
+
+                        List<TagNode> numbers = HtmlParser.getLinksByClass(torNod,"td","class","t_episode_num");
+                        if(numbers.size() > 0){
+                            String number = HtmlParser.getContent(numbers.get(0));
+                            if(!number.trim().equals("")) series.number = number;
+                        }
+
+                        List<TagNode> titles = HtmlParser.getLinksByClass(torNod,"nobr",true);
+                        if(titles.size() > 0){
+                            String title = HtmlParser.getContent(titles.get(0));
+                            if(!title.trim().equals("")) series.title = title;
+                        }
+
+                        //TODO need to get links
+
+                        season.series.add(series);
+                    }
+                }
+            }
+            if(season != null)seasons.add(season);
+        }
+        return seasons;
+    }
+
     private static TagNode getRootNode(String response) {
         HtmlCleaner cleaner = null;
         try {
@@ -126,33 +208,4 @@ public class HtmlParser {
         return rootNode.getElementListByName(nodeName, true);
     }
 
-    public static ArrayList<Sesson> getSessons(TagNode serialTorrListNode) {
-        ArrayList<Sesson> sessons = new ArrayList<Sesson>();
-
-        List<TagNode> torrentsNodes = HtmlParser.getLinksByClass(serialTorrListNode,"div");
-        if(torrentsNodes.size() > 0){
-            for(TagNode torNod : torrentsNodes){
-                String classType = torNod.getAttributeByName("class");
-                if (classType != null){
-                    //create a ll with 1 season (inflate)
-                    boolean hasContent = false;
-                    if(classType.equals("content")){
-                        //create Sesson text
-                        //hasContent = makeText(torNod);
-                    } else if(classType.contains("t_row")){
-                        //create Series text
-                        List<TagNode> numbers = HtmlParser.getLinksByClass(torNod,"td","class","t_episode_num");
-                        //hasContent = makeText(numbers.get(0));
-                        List<TagNode> titles = HtmlParser.getLinksByClass(torNod,"nobr",true);
-                        //hasContent = makeText(titles.get(0));
-                    }
-
-                            /*if (hasContent){
-                                mContainer.addView(season);
-                            }*/
-                }
-            }
-        }
-        return null; //Return Sessons with series
-    }
 }

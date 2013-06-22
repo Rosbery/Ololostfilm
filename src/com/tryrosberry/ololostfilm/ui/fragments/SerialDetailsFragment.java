@@ -17,7 +17,10 @@ import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
 import com.tryrosberry.ololostfilm.logic.api.LostFilmRestClient;
 import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
-import com.tryrosberry.ololostfilm.ui.models.Sesson;
+import com.tryrosberry.ololostfilm.ui.models.Season;
+import com.tryrosberry.ololostfilm.ui.models.Serial;
+import com.tryrosberry.ololostfilm.ui.models.SerialDetails;
+import com.tryrosberry.ololostfilm.ui.models.Series;
 import com.tryrosberry.ololostfilm.utils.Connectivity;
 
 import org.htmlcleaner.TagNode;
@@ -36,7 +39,7 @@ public class SerialDetailsFragment extends BaseFragment {
     private String link;
     private boolean loadingContent = false;
     private boolean gotDescription = false;
-    private ArrayList<Sesson> mSessonList;
+    private ArrayList<Season> mSeasonList;
 
     public static SerialDetailsFragment newInstance(String title, String link) {
         SerialDetailsFragment f = new SerialDetailsFragment();
@@ -53,7 +56,7 @@ public class SerialDetailsFragment extends BaseFragment {
 
         title = getArguments().getString(ARG_TITLE);
         link = getArguments().getString(ARG_LINK);
-        mSessonList = new ArrayList<Sesson>();
+        mSeasonList = new ArrayList<Season>();
         getMainActivity().getSupportActionBar().hide();
 
     }
@@ -113,7 +116,11 @@ public class SerialDetailsFragment extends BaseFragment {
                         super.onSuccess(s);
                         if (getActivity() != null) {
                             gotDescription = true;
-                            parseDetails(s);
+
+                            Serial serial = HtmlParser.getSerialDetails(s);
+                            parseDetails(serial);
+
+                            //parseDetails(s);
                             //parse response and create description;
                         }
                     }
@@ -133,35 +140,52 @@ public class SerialDetailsFragment extends BaseFragment {
 
     }
 
-    private void parseDetails(String s){
-        List<TagNode> nodes = HtmlParser.parseSerialDetails(s);
-        if(nodes.size() >= 2){
-            TagNode serialDescriptionNode = nodes.get(0);
-            if(serialDescriptionNode != null){
-                ImageView image = new ImageView(getActivity());
-                image.setPadding(5, 5, 5, 5);
-                String url = ConstantStorage.BASE_URL + HtmlParser.getLinksByClass(serialDescriptionNode,"img").get(0).getAttributeByName("src");
-                if(URLUtil.isNetworkUrl(url)){
-                    getMainActivity().getImageFetcher().loadImage(url,image);
+    private void parseDetails(Serial serial){
+
+        if(serial != null){
+            SerialDetails det = serial.details;
+            if(det != null){
+                if(!det.imageLink.equals("")){
+                    ImageView image = new ImageView(getActivity());
+                    image.setPadding(5, 5, 5, 5);
+                    getMainActivity().getImageFetcher().loadImage(det.imageLink,image);
                     mContainer.addView(image);
                 }
-                makeText(serialDescriptionNode);
-            }
 
-            TagNode serialTorrListNode = nodes.get(1);
-            if(serialTorrListNode != null){
-                mSessonList = HtmlParser.getSessons(serialTorrListNode);
-            }
+                if(!det.description.equals("")) makeText(det.description,false);
 
+            }
+            ArrayList<Season> seasons = serial.seasons;
+            if(seasons != null && seasons.size() > 0){
+                for(Season season : seasons){
+                    makeText(season.name,true);
+                    ArrayList<Series> serieses = season.series;
+                    if(serieses != null && serieses.size() > 0){
+                        for(Series series : serieses){
+                            makeText(series.number + " " + series.title,false);
+                        }
+                    }
+
+                }
+            }
         }
+
     }
 
     private boolean makeText(TagNode item){
+        String textContent = HtmlParser.getContent(item);
+        return makeText(textContent,false);
+    }
+
+    private boolean makeText(String textContent, boolean big){
         TextView text = new TextView(getActivity());
         text.setAutoLinkMask(Linkify.WEB_URLS);
-        String textContent = HtmlParser.getContent(item);
         if(!textContent.trim().equals("")){
             text.setText(Html.fromHtml(textContent));
+            if(big) {
+                text.setPadding(0, 15, 0, 0);
+                text.setTextAppearance(getActivity(),android.R.style.TextAppearance_Medium);
+            }
             mContainer.addView(text);
             return true;
         } else return false;
