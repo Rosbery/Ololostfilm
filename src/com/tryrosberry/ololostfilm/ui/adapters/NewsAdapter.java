@@ -25,6 +25,7 @@ public class NewsAdapter extends BaseAdapter {
     private Context mContext;
     private List<NewsFeedItem> mContent;
     private ImageFetcher mFatcher;
+    private boolean smartPhoneView = false;
 
     public NewsAdapter(Context context, List<NewsFeedItem> content,ImageFetcher fetcher){
         mContext = context;
@@ -56,16 +57,18 @@ public class NewsAdapter extends BaseAdapter {
 
         if (rootView == null) {
             viewHolder = new NewsViewHolder();
-            rootView = LayoutInflater.from(mContext).inflate(R.layout.news_row, null, false);
+            rootView = LayoutInflater.from(mContext).inflate(smartPhoneView ? R.layout.news_row : R.layout.news_row_small, null, false);
             rootView.setTag(viewHolder);
 
             viewHolder.image = (ImageView) rootView.findViewById(R.id.newsImage);
             viewHolder.tile = (TextView) rootView.findViewById(R.id.newsTitle);
             viewHolder.description = (TextView) rootView.findViewById(R.id.newsDescription);
 
-            LinearLayout.LayoutParams imgParams = (LinearLayout.LayoutParams) viewHolder.image.getLayoutParams();
-            imgParams.height = mContext.getResources().getDisplayMetrics().widthPixels/2;
-            viewHolder.image.setLayoutParams(imgParams);
+            if(smartPhoneView){
+                LinearLayout.LayoutParams imgParams = (LinearLayout.LayoutParams) viewHolder.image.getLayoutParams();
+                imgParams.height = mContext.getResources().getDisplayMetrics().widthPixels/2;
+                viewHolder.image.setLayoutParams(imgParams);
+            }
 
         } else viewHolder = (NewsViewHolder) rootView.getTag();
 

@@ -9,6 +9,7 @@ public class Series {
     public String linkSd;
     public String linkHd;
     public String linkMp4;
+
     public Series(){}
 
     public Series(TagNode node){}
