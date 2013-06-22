@@ -14,12 +14,15 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
 import com.tryrosberry.ololostfilm.logic.api.LostFilmRestClient;
+import com.tryrosberry.ololostfilm.ui.models.NewsDetails;
 import com.tryrosberry.ololostfilm.utils.Connectivity;
 
 import org.htmlcleaner.TagNode;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.ArrayList;
+
+import static com.tryrosberry.ololostfilm.ui.models.NewsDetails.detType;
 
 public class NewsDetailFragment extends BaseFragment {
 
@@ -127,8 +130,26 @@ public class NewsDetailFragment extends BaseFragment {
     }
 
     private void parseDetails(String s){
-        List<TagNode> nodes = HtmlParser.parseNewsDetails(s);
-        if(nodes.size() >= 1){
+        ArrayList<NewsDetails> newsDetails = HtmlParser.parseNewsDetails(s);
+        if(newsDetails.size() > 0){
+            for(NewsDetails detail : newsDetails){
+                switch (detail.type){
+
+                    case TEXT:
+                        makeText(detail.content);
+                        break;
+
+                    case PICTURE:
+                        ImageView image = new ImageView(getActivity());
+                        image.setPadding(5,5,5,5);
+                        getMainActivity().getImageFetcher().loadImage(detail.content,image);
+                        mContainer.addView(image);
+                        break;
+
+                }
+            }
+        }
+        /*if(nodes.size() >= 1){
             TagNode newsRootNode = nodes.get(0);
             TagNode newsContent = newsRootNode;
             List <TagNode> descriptItems = newsContent.getChildTagList();
@@ -174,12 +195,11 @@ public class NewsDetailFragment extends BaseFragment {
 
             }
 
-        }
+        }*/
     }
 
-    private boolean makeText(TagNode item){
+    private boolean makeText(String textContent){
         TextView text = new TextView(getActivity());
-        String textContent = HtmlParser.getContent(item);
         if(!textContent.trim().equals("")){
             text.setText(Html.fromHtml(textContent));
             mContainer.addView(text);

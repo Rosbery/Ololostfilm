@@ -8,8 +8,6 @@ import java.io.Serializable;
 
 public class SerialDetails implements Serializable {
 
-    public enum detType{TEXT,PICTURE,UNKNOWN}
-
     public String imageLink;
     public String description;
 

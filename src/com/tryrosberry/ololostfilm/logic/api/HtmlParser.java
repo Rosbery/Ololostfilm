@@ -1,6 +1,9 @@
 package com.tryrosberry.ololostfilm.logic.api;
 
+import android.widget.ImageView;
+
 import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
+import com.tryrosberry.ololostfilm.ui.models.NewsDetails;
 import com.tryrosberry.ololostfilm.ui.models.NewsFeedItem;
 import com.tryrosberry.ololostfilm.ui.models.Season;
 import com.tryrosberry.ololostfilm.ui.models.Serial;
@@ -28,8 +31,8 @@ public class HtmlParser {
         return getNews(parse(response, "div", "class", "content_body"));
     }
 
-    public static List<TagNode> parseNewsDetails(String response){
-        return parse(response, "div", "class", "content_body");
+    public static ArrayList<NewsDetails> parseNewsDetails(String response){
+        return getNewsDetails(parse(response, "div", "class", "content_body"));
     }
 
     public static List<TagNode> parseSerialDetails(String response){
@@ -73,6 +76,76 @@ public class HtmlParser {
         }
 
         return newsFeed;
+    }
+
+    private static ArrayList<NewsDetails> getNewsDetails(List<TagNode> nodes) {
+        ArrayList<NewsDetails> details = new ArrayList<NewsDetails>();
+        if(nodes.size() > 0){
+            TagNode newsRootNode = nodes.get(0);
+            TagNode newsContent = newsRootNode;
+            List <TagNode> descriptItems = newsContent.getChildTagList();
+            //new versting
+            List<TagNode> newVerstNews = HtmlParser.getLinksByClass(newsContent, "div", "class", "news-container");
+            if(newVerstNews.size() > 0) {
+                newsContent = newVerstNews.get(0);
+                List <TagNode> newDescriptItems = newsContent.getChildTagList();
+                newDescriptItems.addAll(descriptItems);
+                descriptItems = newDescriptItems;
+            }
+            //
+            if(descriptItems.size() > 0){
+                int textCounter = 0;
+                for(int i = 0; i < descriptItems.size();i++){
+                    NewsDetails detail = new NewsDetails();
+                    TagNode item = descriptItems.get(i);
+                    if(item.getName().equals("p")){
+                        if(textCounter != 0 && !HtmlParser.getContent(item).contains("Дата")){
+                            String content = HtmlParser.getContent(item);
+                            if(!content.trim().equals("")) {
+                                textCounter++;
+                                detail.type = NewsDetails.detType.TEXT;
+                                detail.content = content;
+                                details.add(detail);
+                            }
+                        }
+                    } else if(item.getName().equals("div")){
+                        String classType = item.getAttributeByName("class");
+                        if(classType != null && classType.equals("center")){
+                            String content = HtmlParser.getContent(item);
+                            if(!content.trim().equals("")) {
+                                textCounter++;
+                                detail.type = NewsDetails.detType.TEXT;
+                                detail.content = content;
+                                details.add(detail);
+                            }
+                            List<TagNode> imageUrls = HtmlParser.getLinksByClass(item, "img");
+                            if(imageUrls.size() > 0){
+                                detail.type = NewsDetails.detType.PICTURE;
+                                detail.content = imageUrls.get(0).getAttributeByName("src");
+                                details.add(detail);
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                if(textCounter <= 1){
+                    String content = HtmlParser.getContent(newsRootNode);
+                    if(!content.trim().equals("")) {
+                        NewsDetails detail = new NewsDetails();
+                        textCounter++;
+                        detail.type = NewsDetails.detType.TEXT;
+                        detail.content = content;
+                        details.add(detail);
+                    }
+                }
+
+            }
+
+        }
+        return details;
     }
 
     public static Serial getSerialDetails(String s){
@@ -161,6 +234,7 @@ public class HtmlParser {
             cleaner = new HtmlCleaner();
         } catch (Exception e) {
             e.printStackTrace();
+            return new TagNode("error");
         }
 
         return cleaner.clean(response);
