@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.imagefatcher.ImageFetcher;
 import com.tryrosberry.ololostfilm.ui.activities.MainActivity;
-import com.tryrosberry.ololostfilm.ui.fragments.SerialDetailsFragment;
+import com.tryrosberry.ololostfilm.ui.fragments.secondary.SerialDetailsFragment;
 import com.tryrosberry.ololostfilm.ui.models.Serial;
 
 import java.util.List;

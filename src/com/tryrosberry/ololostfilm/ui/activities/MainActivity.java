@@ -37,9 +37,9 @@ import com.tryrosberry.ololostfilm.imagefatcher.ImageCache;
 import com.tryrosberry.ololostfilm.imagefatcher.ImageFetcher;
 import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
 import com.tryrosberry.ololostfilm.logic.storage.Settings;
-import com.tryrosberry.ololostfilm.ui.fragments.NewsFragment;
-import com.tryrosberry.ololostfilm.ui.fragments.RssFragment;
-import com.tryrosberry.ololostfilm.ui.fragments.SerialFragment;
+import com.tryrosberry.ololostfilm.ui.fragments.main.NewsFragment;
+import com.tryrosberry.ololostfilm.ui.fragments.main.RssFragment;
+import com.tryrosberry.ololostfilm.ui.fragments.main.SerialFragment;
 import com.tryrosberry.ololostfilm.ui.fragments.SuperAwesomeCardFragment;
 
 public class MainActivity extends SherlockFragmentActivity {

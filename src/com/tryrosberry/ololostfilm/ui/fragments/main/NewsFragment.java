@@ -1,4 +1,4 @@
-package com.tryrosberry.ololostfilm.ui.fragments;
+package com.tryrosberry.ololostfilm.ui.fragments.main;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
 import com.tryrosberry.ololostfilm.logic.api.LostFilmRestClient;
 import com.tryrosberry.ololostfilm.ui.adapters.NewsAdapter;
+import com.tryrosberry.ololostfilm.ui.fragments.BaseFragment;
 import com.tryrosberry.ololostfilm.ui.models.NewsFeedItem;
 import com.tryrosberry.ololostfilm.utils.Connectivity;
 

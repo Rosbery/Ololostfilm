@@ -1,8 +1,9 @@
-package com.tryrosberry.ololostfilm.ui.fragments;
+package com.tryrosberry.ololostfilm.ui.fragments.secondary;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,11 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
 import com.tryrosberry.ololostfilm.logic.api.LostFilmRestClient;
-import com.tryrosberry.ololostfilm.ui.models.NewsDetails;
+import com.tryrosberry.ololostfilm.ui.fragments.BaseFragment;
+import com.tryrosberry.ololostfilm.ui.models.Season;
+import com.tryrosberry.ololostfilm.ui.models.Serial;
+import com.tryrosberry.ololostfilm.ui.models.SerialDetails;
+import com.tryrosberry.ololostfilm.ui.models.Series;
 import com.tryrosberry.ololostfilm.utils.Connectivity;
 
 import org.htmlcleaner.TagNode;
@@ -22,9 +27,7 @@ import org.htmlcleaner.TagNode;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static com.tryrosberry.ololostfilm.ui.models.NewsDetails.detType;
-
-public class NewsDetailFragment extends BaseFragment {
+public class SerialDetailsFragment extends BaseFragment {
 
     private static final String ARG_TITLE = "title";
     private static final String ARG_LINK = "link";
@@ -34,9 +37,10 @@ public class NewsDetailFragment extends BaseFragment {
     private String link;
     private boolean loadingContent = false;
     private boolean gotDescription = false;
+    private ArrayList<Season> mSeasonList;
 
-    public static NewsDetailFragment newInstance(String title, String link) {
-        NewsDetailFragment f = new NewsDetailFragment();
+    public static SerialDetailsFragment newInstance(String title, String link) {
+        SerialDetailsFragment f = new SerialDetailsFragment();
         Bundle b = new Bundle();
         b.putString(ARG_TITLE, title);
         b.putString(ARG_LINK, link);
@@ -50,7 +54,7 @@ public class NewsDetailFragment extends BaseFragment {
 
         title = getArguments().getString(ARG_TITLE);
         link = getArguments().getString(ARG_LINK);
-
+        mSeasonList = new ArrayList<Season>();
         getMainActivity().getSupportActionBar().hide();
 
     }
@@ -110,14 +114,19 @@ public class NewsDetailFragment extends BaseFragment {
                         super.onSuccess(s);
                         if (getActivity() != null) {
                             gotDescription = true;
-                            parseDetails(s);
+
+                            Serial serial = HtmlParser.getSerialDetails(s);
+                            parseDetails(serial);
+
+                            //parseDetails(s);
+                            //parse response and create description;
                         }
                     }
 
                     @Override
                     public void onFailure(Throwable throwable, String s) {
                         super.onFailure(throwable, s);
-                        if (NewsDetailFragment.this.isAdded()) {
+                        if (SerialDetailsFragment.this.isAdded()) {
                             if (throwable instanceof IOException) {
                                 getMainActivity().showMessage("Error", getString(R.string.error_internet) + "\n" + s);
                             } else getMainActivity().showMessage("ERROR", throwable.toString());
@@ -129,79 +138,52 @@ public class NewsDetailFragment extends BaseFragment {
 
     }
 
-    private void parseDetails(String s){
-        ArrayList<NewsDetails> newsDetails = HtmlParser.parseNewsDetails(s);
-        if(newsDetails.size() > 0){
-            for(NewsDetails detail : newsDetails){
-                switch (detail.type){
+    private void parseDetails(Serial serial){
 
-                    case TEXT:
-                        makeText(detail.content);
-                        break;
+        if(serial != null){
+            SerialDetails det = serial.details;
+            if(det != null){
+                if(!det.imageLink.equals("")){
+                    ImageView image = new ImageView(getActivity());
+                    image.setPadding(5, 5, 5, 5);
+                    getMainActivity().getImageFetcher().loadImage(det.imageLink,image);
+                    mContainer.addView(image);
+                }
 
-                    case PICTURE:
-                        ImageView image = new ImageView(getActivity());
-                        image.setPadding(5,5,5,5);
-                        getMainActivity().getImageFetcher().loadImage(detail.content,image);
-                        mContainer.addView(image);
-                        break;
+                if(!det.description.equals("")) makeText(det.description,false);
+
+            }
+            ArrayList<Season> seasons = serial.seasons;
+            if(seasons != null && seasons.size() > 0){
+                for(Season season : seasons){
+                    makeText(season.name,true);
+                    ArrayList<Series> serieses = season.series;
+                    if(serieses != null && serieses.size() > 0){
+                        for(Series series : serieses){
+                            makeText(series.number + " " + series.title,false);
+                        }
+                    }
 
                 }
             }
         }
-        /*if(nodes.size() >= 1){
-            TagNode newsRootNode = nodes.get(0);
-            TagNode newsContent = newsRootNode;
-            List <TagNode> descriptItems = newsContent.getChildTagList();
-            //new versting
-            List<TagNode> newVerstNews = HtmlParser.getLinksByClass(newsContent, "div", "class", "news-container");
-            if(newVerstNews.size() >= 1) {
-                newsContent = newVerstNews.get(0);
-                List <TagNode> newDescriptItems = newsContent.getChildTagList();
-                newDescriptItems.addAll(descriptItems);
-                descriptItems = newDescriptItems;
-            }
-            //
-            if(descriptItems.size() > 0){
-                int textCounter = 0;
-                for(int i = 0; i < descriptItems.size();i++){
-                    TagNode item = descriptItems.get(i);
-                    if(item.getName().equals("p")){
-                        if(textCounter != 0 && !HtmlParser.getContent(item).contains("Дата")){
-                            if(makeText(item)) textCounter++;
-                        }
-                    } else if(item.getName().equals("div")){
-                        String classType = item.getAttributeByName("class");
-                        if(classType != null && classType.equals("center")){
-                            if(makeText(item)) textCounter++;
-                            ImageView image = new ImageView(getActivity());
-                            image.setPadding(5,5,5,5);
-                            List<TagNode> imageUrls = HtmlParser.getLinksByClass(item, "img");
-                            if(imageUrls.size() > 0){
-                                getMainActivity().getImageFetcher().loadImage(
-                                        imageUrls.get(0).getAttributeByName("src"),image);
-                                mContainer.addView(image);
-                            }
 
-                        }
-
-                    }
-
-                }
-
-                if(textCounter <= 1){
-                    makeText(newsRootNode);
-                }
-
-            }
-
-        }*/
     }
 
-    private boolean makeText(String textContent){
+    private boolean makeText(TagNode item){
+        String textContent = HtmlParser.getContent(item);
+        return makeText(textContent,false);
+    }
+
+    private boolean makeText(String textContent, boolean big){
         TextView text = new TextView(getActivity());
+        text.setAutoLinkMask(Linkify.WEB_URLS);
         if(!textContent.trim().equals("")){
             text.setText(Html.fromHtml(textContent));
+            if(big) {
+                text.setPadding(0, 15, 0, 0);
+                text.setTextAppearance(getActivity(),android.R.style.TextAppearance_Medium);
+            }
             mContainer.addView(text);
             return true;
         } else return false;

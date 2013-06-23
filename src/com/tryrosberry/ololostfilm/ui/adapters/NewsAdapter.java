@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.imagefatcher.ImageFetcher;
 import com.tryrosberry.ololostfilm.ui.activities.MainActivity;
-import com.tryrosberry.ololostfilm.ui.fragments.NewsDetailFragment;
+import com.tryrosberry.ololostfilm.ui.fragments.secondary.NewsDetailFragment;
 import com.tryrosberry.ololostfilm.ui.models.NewsFeedItem;
 
 import java.util.List;
