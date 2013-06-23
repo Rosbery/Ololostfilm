@@ -55,6 +55,18 @@ public class NewsFragment extends BaseFragment {
 
         View v = inflater.inflate(R.layout.list_layout,null);
         mNewsListView = (ListView) v.findViewById(R.id.contentListView);
+
+        /*if(mNewsListView.getFooterViewsCount() == 0){
+            setFooterView();
+        } else {
+            mNewsListView.removeFooterView(footerView);
+            setFooterView();
+        }*/
+
+        if(mNewsListView.getAdapter() == null && mAdapter != null) {
+            mNewsListView.setAdapter(mAdapter);
+        }
+
         mNewsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {}
@@ -70,17 +82,6 @@ public class NewsFragment extends BaseFragment {
             }
         });
 
-        /*if(mNewsListView.getFooterViewsCount() == 0){
-            setFooterView();
-        } else {
-            mNewsListView.removeFooterView(footerView);
-            setFooterView();
-        }*/
-
-        if(mNewsListView.getAdapter() == null && mAdapter != null) {
-            mNewsListView.setAdapter(mAdapter);
-        }
-
         return v;
     }
 
@@ -88,7 +89,7 @@ public class NewsFragment extends BaseFragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            if(getActivity() != null && mPage == 0)getData();
+            if(getActivity() != null && mPage == 0) getData();
         }
 
     }
