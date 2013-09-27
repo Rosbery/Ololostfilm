@@ -116,7 +116,6 @@ public class MainActivity extends SherlockFragmentActivity {
             }
 
             public void onDrawerOpened(View drawerView) {
-                //super.onDrawerClosed(drawerView);
                 super.onDrawerOpened(drawerView);
                 getSupportActionBar().setTitle(mDrawerTitle);
                 supportInvalidateOptionsMenu();

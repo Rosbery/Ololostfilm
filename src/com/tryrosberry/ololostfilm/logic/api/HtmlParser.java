@@ -1,7 +1,5 @@
 package com.tryrosberry.ololostfilm.logic.api;
 
-import android.widget.ImageView;
-
 import com.tryrosberry.ololostfilm.logic.storage.ConstantStorage;
 import com.tryrosberry.ololostfilm.ui.models.NewsDetails;
 import com.tryrosberry.ololostfilm.ui.models.NewsFeedItem;
@@ -35,9 +33,54 @@ public class HtmlParser {
         return getNewsDetails(parse(response, "div", "class", "content_body"));
     }
 
+    public static String parseNewsDetailsForWebView(String response){
+        List<TagNode> nodes = parse(response, "div", "class", "content_body");
+        if(nodes != null && nodes.size() > 0) {
+            TagNode root = nodes.get(0);
+            rebuildRootNode(root);
+            return getHtmlContent(root);
+        } else return null;
+    }
+
     public static List<TagNode> parseSerialDetails(String response){
         return getLinksByClass(parse(response, "div", "class", "mid").get(0), "div", false); // get all <div> in <div class="mid"> //needed 0-1 items
     }
+
+    public static String parseSerialDetailsForWebView(String response){
+        List<TagNode> nodes = parse(response, "div", "class", "mid");
+        if(nodes != null && nodes.size() > 0) {
+            TagNode root = nodes.get(0);
+            rebuildRootNode(root);
+            return getHtmlContent(root);
+        } else return null;
+    }
+
+    public static void rebuildRootNode(TagNode root){
+        List<TagNode> imgs = HtmlParser.getLinksByClass(root,"img");
+        for(TagNode img : imgs){
+            String oldAttr = img.getAttributeByName("src");
+            if(oldAttr.startsWith("/")){
+                String newAttr = ConstantStorage.BASE_URL + oldAttr;
+                img.removeAttribute("src");
+                img.addAttribute("src",newAttr);
+            }
+            if(img.getAttributeByName("style") != null){
+                oldAttr = "width: 100%";
+                img.removeAttribute("style");
+                img.addAttribute("style",oldAttr);
+            }
+        }
+        List<TagNode> as = HtmlParser.getLinksByClass(root,"a");
+        for(TagNode a : as){
+            String oldAttr = a.getAttributeByName("href");
+            if(oldAttr.startsWith("/")){
+                String newAttr = ConstantStorage.BASE_URL + oldAttr;
+                a.removeAttribute("href");
+                a.addAttribute("href",newAttr);
+            }
+        }
+    }
+
 
     private static List<TagNode> parse(String response, String nodeName, String tagvalue, String CSSClassname) {
         TagNode rootNode = getRootNode(response);
@@ -66,7 +109,13 @@ public class HtmlParser {
                     NewsFeedItem feedItem = new NewsFeedItem();
                     feedItem.title = getContent(feedTagNode);
                     feedItem.image = ConstantStorage.BASE_URL + HtmlParser.getLinksByClass(newsTagNodes.get(i+1),"img").get(0).getAttributeByName("src");
-                    feedItem.description = getContent(newsTagNodes.get(i+2));
+                    int what = 2;
+                    String content;
+                    do {
+                        content = getContent(newsTagNodes.get(i+what));
+                        what++;
+                    } while (content.trim().equals(""));
+                    feedItem.description = content;
                     if(hcounter < newsTagLinks.size())feedItem.link = newsTagLinks.get(hcounter).getAttributeByName("href");
                     newsFeed.add(feedItem);
                     hcounter++;
@@ -226,6 +275,11 @@ public class HtmlParser {
             if(season != null)seasons.add(season);
         }
         return seasons;
+    }
+
+    private static String getHtmlContent(TagNode root){
+        if(root != null) return "<" + root.getName() + ">" + new HtmlCleaner().getInnerHtml(root) + "</" + root.getName() + ">";
+        else return "";
     }
 
     private static TagNode getRootNode(String response) {

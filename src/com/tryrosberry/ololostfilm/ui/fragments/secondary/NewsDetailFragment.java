@@ -6,8 +6,7 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -15,17 +14,15 @@ import com.tryrosberry.ololostfilm.R;
 import com.tryrosberry.ololostfilm.logic.api.HtmlParser;
 import com.tryrosberry.ololostfilm.logic.api.LostFilmRestClient;
 import com.tryrosberry.ololostfilm.ui.fragments.BaseFragment;
-import com.tryrosberry.ololostfilm.ui.models.NewsDetails;
 import com.tryrosberry.ololostfilm.utils.Connectivity;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class NewsDetailFragment extends BaseFragment {
 
     private static final String ARG_TITLE = "title";
     private static final String ARG_LINK = "link";
-    private LinearLayout mContainer;
+    private WebView mWebView;
 
     private String title;
     private String link;
@@ -55,8 +52,8 @@ public class NewsDetailFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.element_details,null);
-        mContainer = (LinearLayout) v.findViewById(R.id.elementContent);
+        View v = inflater.inflate(R.layout.web_details,null);
+        mWebView = (WebView) v.findViewById(R.id.elementWeb);
         ((TextView)v.findViewById(R.id.elementTitle)).setText(Html.fromHtml(title));
 
         return v;
@@ -65,6 +62,7 @@ public class NewsDetailFragment extends BaseFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        mWebView.getSettings().setJavaScriptEnabled(true);
         getData();
     }
 
@@ -107,7 +105,7 @@ public class NewsDetailFragment extends BaseFragment {
                         super.onSuccess(s);
                         if (getActivity() != null) {
                             gotDescription = true;
-                            parseDetails(s);
+                            mWebView.loadData(HtmlParser.parseNewsDetailsForWebView(s),"text/html; charset=UTF-8",null);
                         }
                     }
 
@@ -124,84 +122,6 @@ public class NewsDetailFragment extends BaseFragment {
             } else getMainActivity().showMessage("Error", getString(R.string.error_internet));
         }
 
-    }
-
-    private void parseDetails(String s){
-        ArrayList<NewsDetails> newsDetails = HtmlParser.parseNewsDetails(s);
-        if(newsDetails.size() > 0){
-            for(NewsDetails detail : newsDetails){
-                switch (detail.type){
-
-                    case TEXT:
-                        makeText(detail.content);
-                        break;
-
-                    case PICTURE:
-                        ImageView image = new ImageView(getActivity());
-                        image.setPadding(5,5,5,5);
-                        getMainActivity().getImageFetcher().loadImage(detail.content,image);
-                        mContainer.addView(image);
-                        break;
-
-                }
-            }
-        }
-        /*if(nodes.size() >= 1){
-            TagNode newsRootNode = nodes.get(0);
-            TagNode newsContent = newsRootNode;
-            List <TagNode> descriptItems = newsContent.getChildTagList();
-            //new versting
-            List<TagNode> newVerstNews = HtmlParser.getLinksByClass(newsContent, "div", "class", "news-container");
-            if(newVerstNews.size() >= 1) {
-                newsContent = newVerstNews.get(0);
-                List <TagNode> newDescriptItems = newsContent.getChildTagList();
-                newDescriptItems.addAll(descriptItems);
-                descriptItems = newDescriptItems;
-            }
-            //
-            if(descriptItems.size() > 0){
-                int textCounter = 0;
-                for(int i = 0; i < descriptItems.size();i++){
-                    TagNode item = descriptItems.get(i);
-                    if(item.getName().equals("p")){
-                        if(textCounter != 0 && !HtmlParser.getContent(item).contains("Дата")){
-                            if(makeText(item)) textCounter++;
-                        }
-                    } else if(item.getName().equals("div")){
-                        String classType = item.getAttributeByName("class");
-                        if(classType != null && classType.equals("center")){
-                            if(makeText(item)) textCounter++;
-                            ImageView image = new ImageView(getActivity());
-                            image.setPadding(5,5,5,5);
-                            List<TagNode> imageUrls = HtmlParser.getLinksByClass(item, "img");
-                            if(imageUrls.size() > 0){
-                                getMainActivity().getImageFetcher().loadImage(
-                                        imageUrls.get(0).getAttributeByName("src"),image);
-                                mContainer.addView(image);
-                            }
-
-                        }
-
-                    }
-
-                }
-
-                if(textCounter <= 1){
-                    makeText(newsRootNode);
-                }
-
-            }
-
-        }*/
-    }
-
-    private boolean makeText(String textContent){
-        TextView text = new TextView(getActivity());
-        if(!textContent.trim().equals("")){
-            text.setText(Html.fromHtml(textContent));
-            mContainer.addView(text);
-            return true;
-        } else return false;
     }
 
 }

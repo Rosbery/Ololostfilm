@@ -56,13 +56,6 @@ public class NewsFragment extends BaseFragment {
         View v = inflater.inflate(R.layout.list_layout,null);
         mNewsListView = (ListView) v.findViewById(R.id.contentListView);
 
-        /*if(mNewsListView.getFooterViewsCount() == 0){
-            setFooterView();
-        } else {
-            mNewsListView.removeFooterView(footerView);
-            setFooterView();
-        }*/
-
         if(mNewsListView.getAdapter() == null && mAdapter != null) {
             mNewsListView.setAdapter(mAdapter);
         }

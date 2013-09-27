@@ -37,7 +37,6 @@ public class SerialDetailsFragment extends BaseFragment {
     private String link;
     private boolean loadingContent = false;
     private boolean gotDescription = false;
-    private ArrayList<Season> mSeasonList;
 
     public static SerialDetailsFragment newInstance(String title, String link) {
         SerialDetailsFragment f = new SerialDetailsFragment();
@@ -54,7 +53,6 @@ public class SerialDetailsFragment extends BaseFragment {
 
         title = getArguments().getString(ARG_TITLE);
         link = getArguments().getString(ARG_LINK);
-        mSeasonList = new ArrayList<Season>();
         getMainActivity().getSupportActionBar().hide();
 
     }
@@ -117,9 +115,6 @@ public class SerialDetailsFragment extends BaseFragment {
 
                             Serial serial = HtmlParser.getSerialDetails(s);
                             parseDetails(serial);
-
-                            //parseDetails(s);
-                            //parse response and create description;
                         }
                     }
 
